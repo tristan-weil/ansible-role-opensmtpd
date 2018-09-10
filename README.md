@@ -9,8 +9,8 @@ Other mailers are removed.
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
     opensmtpd_macros: []                                    # the list of macros
-      - name:                                               # the name of the macro
-        value:                                              # the value of the macro
+      - name: [mandatory]                                   # the name of the macro
+        value: [mandatory]                                  # the value of the macro
    
 The list of macros that will be in the `MACROS` part of the configuration file. 
 This is where the macros are defined.
@@ -28,7 +28,7 @@ This is where interfaces or sockets are defined.
         config: "{{ opensmtpd_conf_dir }}/aliases.db"       # the file path
         makemap_type: aliases                               # the makemap type (aliases / set)
         lines: []                                           # the content of the file line by line
-          - line:                                           # a line (the content is dependent of the file type)
+          - line: [mandatory]                               # a line (the content is dependent of the file type)
             state: present                                  # present|absent: if present, add the line
 
 The list of rules that will be in the `TABLES` part of the configuration file.
