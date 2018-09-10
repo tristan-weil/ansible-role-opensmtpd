@@ -52,8 +52,8 @@ For more information, see https://www.opensmtpd.org/manual.html
 
 ## Dependencies
 
-t18s.fr_pkg
-t18s.fr_firewall_config
+- t18s.fr_pkg
+- t18s.fr_firewall_config
 
 ## Example Playbook
 
