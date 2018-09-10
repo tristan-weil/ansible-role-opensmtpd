@@ -1,0 +1,68 @@
+---
+
+- name: update file table files
+  lineinfile:
+    path: "{{ item[0].config }}"
+    line: "{{ item[1].line }}"
+    state: "{{ item[1].state | default('present') }}"
+    regexp: "{{ item[1].regexp | default(omit) }}"
+    owner: root
+    group: root
+    mode: "0644"
+  register: __opensmtpd_tables_file_result
+  when: >
+    item[0].type == 'file'
+  with_subelements:
+    - "{{ opensmtpd_tables }}"
+    - lines
+
+- name: update db table files
+  lineinfile:
+    path: "{{ item[0].config | regex_replace('.db$', '') }}"
+    line: "{{ item[1].line }}"
+    state: "{{ item[1].state | default('present') }}"
+    regexp: "{{ item[1].regexp | default(omit) }}"
+    owner: root
+    group: root
+    mode: "0644"
+  register: __opensmtpd_tables_db_result
+  when: >
+    item[0].type == 'db'
+  with_subelements:
+    - "{{ opensmtpd_tables }}"
+    - lines
+
+- name: install the opensmtpd config file
+  template:
+    src: etc/mail/smtpd.conf.j2
+    dest: "{{ opensmtpd_conf_dir }}/smtpd.conf"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "{{ opensmtpd_bin_name }} -f %s -n"
+  notify:
+    - opensmtpd restart
+
+- name: install the mailname config file
+  template:
+    src: etc/mail/mailname.j2
+    dest: "{{ opensmtpd_conf_dir }}/mailname"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - opensmtpd restart
+
+- name: update file tables
+  command: "smtpctl update table {{ item.item[0].name }}"
+  when: >
+    item.changed
+    and item.item[0].type == 'file'
+  with_items: "{{ __opensmtpd_tables_file_result.results }}"
+
+- name: update db tables
+  command: "makemap {% if item.item[0].makemap_type is defined %}-t {{ item.item[0].makemap_type }}{% endif %} {{ item.item[0].config | regex_replace('.db$', '') }}"
+  when: >
+    item.changed
+    and item.item[0].type == 'db'
+  with_items: "{{ __opensmtpd_tables_db_result.results }}"

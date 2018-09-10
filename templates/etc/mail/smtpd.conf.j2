@@ -1,0 +1,32 @@
+# This is the smtpd server system-wide configuration file.
+# See smtpd.conf(5) for more information.
+
+# Macros
+{% for macro in opensmtpd_macros %}
+{{ macro.name }} = "{{ macro.value }}"
+{% endfor %}
+
+# Listen
+# To accept external mail, use: listen on all
+{% for intf in opensmtpd_listen_interfaces %}
+listen on {{ intf.listen_on }} {% if intf.options is defined %}{{ intf.options }}{% endif %}
+
+{% endfor %}
+
+# Tables
+# If you edit a file, you have to run "smtpctl update table <file>"
+{% for table in opensmtpd_tables %}
+{%      if table.type == 'file' or table.type == 'db' %}
+table {{ table.name }} {{ table.type }}:{{ table.config }}
+{%      elif table.type == 'values' %}
+table {{ table.name }} { {{ table.values | join(',') }} }
+{%      elif table.type == 'kv' %}
+table {{ table.name }} { {% for kv in table.list %}{{ kv.key }}={{ kv.value }}{% if not loop.last %},{% endif %}{% endfor %} }
+{%      endif %}
+{% endfor %}
+
+# Rules
+# Uncomment the following to accept external mail for domain "example.org"
+{% for rule in opensmtpd_rules %}
+{{ rule }}
+{% endfor %}

@@ -1,0 +1,24 @@
+---
+
+opensmtpd_mailname: "{{ inventory_hostname }}"
+
+opensmtpd_macros: []
+
+opensmtpd_listen_interfaces:
+  - listen_on: localhost
+
+opensmtpd_tables:
+  - name: aliases
+    type: db
+    config: "{{ opensmtpd_conf_dir }}/aliases.db"
+    makemap_type: aliases
+    lines: []
+#      - line: "root: tt@fsdfsd.com"
+#        state: present
+
+opensmtpd_rules:
+  - accept for local alias <aliases> deliver to mbox
+  - accept for any relay
+
+opensmtpd_firewall_config_ipv4_rules: []
+opensmtpd_firewall_config_ipv6_rules: []

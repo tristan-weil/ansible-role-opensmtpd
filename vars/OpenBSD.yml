@@ -1,0 +1,9 @@
+---
+
+opensmtpd_pkgs_list: []
+
+opensmtpd_conf_dir: /etc/mail
+opensmtpd_user: _smtpd
+opensmtpd_group: _smtpd
+opensmtpd_service_name: smtpd
+opensmtpd_bin_name: smtpd
