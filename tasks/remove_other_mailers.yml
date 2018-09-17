@@ -26,6 +26,6 @@
   with_items: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
 
 - import_role:
-   name: t18s.fr_pkg
+    name: t18s.fr_pkg
   vars:
     pkg_list: "{{ opensmtpd_mailers_to_remove | json_query(\"[*].packages | [].{ name: name, state: 'absent' }\") }}"
