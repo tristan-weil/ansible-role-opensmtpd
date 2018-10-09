@@ -3,4 +3,4 @@
 - import_role:
     name: t18s.fr_pkg
   vars:
-    pkg_list: "{{ opensmtpd_pkgs_list }}"
+    pkg_list: "{{ opensmtpd_pkgs }}"

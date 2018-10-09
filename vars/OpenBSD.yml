@@ -1,6 +1,6 @@
 ---
 
-opensmtpd_pkgs_list: []
+opensmtpd_pkgs: []
 
 opensmtpd_conf_dir: /etc/mail
 opensmtpd_user: _smtpd

@@ -39,7 +39,7 @@ The list of rules that will be in the `TABLES` part of the configuration file.
 
 The list of rules that will be in the `RULES` part of the configuration file.
 
-    opensmtpd_mailname: "{{ etc_hosts_list | map(attribute='hostname') | unique | first | default(inventory_hostname) }}" # the mailname
+    opensmtpd_mailname: "{{ etc_hosts | map(attribute='hostname') | unique | first | default(inventory_hostname) }}" # the mailname
 
 OpenSMTPD will present itself with this name.
     

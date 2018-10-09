@@ -1,6 +1,6 @@
 ---
 
-opensmtpd_pkgs_list:
+opensmtpd_pkgs:
   - opensmtpd
 
 opensmtpd_mailers_to_remove:
