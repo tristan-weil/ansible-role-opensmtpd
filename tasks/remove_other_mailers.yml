@@ -22,7 +22,7 @@
     masked: True
   when: >
     item.rc == 0
-    and ansible_service_mgr == 'systemd'
+    and ansible_facts['service_mgr'] == 'systemd'
   with_items: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
 
 - import_role:
