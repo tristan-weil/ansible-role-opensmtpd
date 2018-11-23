@@ -5,7 +5,7 @@
   register: __opensmtpd_to_remove_check_result
   ignore_errors: True
   changed_when: False
-  with_items: "{{ opensmtpd_mailers_to_remove }}"
+  loop: "{{ opensmtpd_mailers_to_remove }}"
 
 - name: disable mailer services
   service:
@@ -14,7 +14,7 @@
     enabled: no
   when: >
     item.rc == 0
-  with_items: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
+  loop: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
 
 - name: mask mailer services
   systemd:
@@ -23,7 +23,7 @@
   when: >
     item.rc == 0
     and ansible_facts['service_mgr'] == 'systemd'
-  with_items: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
+  loop: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
 
 - import_role:
     name: t18s.fr_pkg

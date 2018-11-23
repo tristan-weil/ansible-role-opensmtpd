@@ -12,9 +12,7 @@
   register: __opensmtpd_tables_file_result
   when: >
     item[0].type == 'file'
-  with_subelements:
-    - "{{ opensmtpd_tables }}"
-    - lines
+  loop: "{{ opensmtpd_tables | subelements('lines') }}"
 
 - name: update db table files
   lineinfile:
@@ -28,9 +26,7 @@
   register: __opensmtpd_tables_db_result
   when: >
     item[0].type == 'db'
-  with_subelements:
-    - "{{ opensmtpd_tables }}"
-    - lines
+  loop: "{{ opensmtpd_tables | subelements('lines') }}"
 
 - name: install the opensmtpd config file
   template:
@@ -58,11 +54,11 @@
   when: >
     item.changed
     and item.item[0].type == 'file'
-  with_items: "{{ __opensmtpd_tables_file_result.results }}"
+  loop: "{{ __opensmtpd_tables_file_result.results }}"
 
 - name: update db tables
   command: "makemap {% if item.item[0].makemap_type is defined %}-t {{ item.item[0].makemap_type }}{% endif %} {{ item.item[0].config | regex_replace('.db$', '') }}"
   when: >
     item.changed
     and item.item[0].type == 'db'
-  with_items: "{{ __opensmtpd_tables_db_result.results }}"
+  loop: "{{ __opensmtpd_tables_db_result.results }}"
