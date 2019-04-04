@@ -1,31 +1,29 @@
 ---
 
-- name: check for other mailers
-  command: "systemctl status {{ item.name }}"
-  register: __opensmtpd_to_remove_check_result
-  ignore_errors: True
-  changed_when: False
-  loop: "{{ opensmtpd_mailers_to_remove }}"
+- name: gather data about services
+  service_facts:
 
 - name: disable mailer services
   service:
     name: "{{ item.item.name }}"
     state: stopped
-    enabled: no
+    enabled: False
   when: >
     item.rc == 0
-  loop: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
+    and ansible_facts['services'][item + '.service'] is defined
+  loop: "{{ opensmtpd_mailers_to_remove }}"
 
-- name: mask mailer services
+ - name: mask mailer services
   systemd:
     name: "{{ item.item.name }}"
     masked: True
   when: >
     item.rc == 0
     and ansible_facts['service_mgr'] == 'systemd'
-  loop: "{{ __opensmtpd_to_remove_check_result.results | default([]) }}"
+    and ansible_facts['services'][item + '.service'] is defined
+  loop: "{{ opensmtpd_mailers_to_remove }}"
 
-- include_role:
+  - include_role:
     name: t18s.fr_pkg
   vars:
     pkg_list: "{{ opensmtpd_mailers_to_remove | json_query(\"[*].packages | [].{ name: name, state: 'absent' }\") }}"
