@@ -1,0 +1,54 @@
+---
+
+opensmtpd_pkgs: "{{ __opensmtpd_pkgs_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_mailers_to_remove: "{{ __opensmtpd_mailers_to_remove_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_conf_dir: "{{ __opensmtpd_conf_dir_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_user: "{{ __opensmtpd_user_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_group: "{{ __opensmtpd_group_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_service_name: "{{ __opensmtpd_service_name_by_distribution[ ansible_facts['distribution'] ] }}"
+opensmtpd_bin_name: "{{ __opensmtpd_bin_name_by_distribution[ ansible_facts['distribution'] ] }}"
+
+__opensmtpd_pkgs_by_distribution:
+  Debian:
+    - opensmtpd
+  OpenBSD: []
+
+__opensmtpd_mailers_to_remove_by_distribution:
+  Debian:
+    - name: exim4
+      packages:
+        - name: exim4-base
+        - name: exim4-config
+        - name: exim4-daemon-light
+
+    - name: postfix
+      packages:
+        - name: postfix
+        - name: postfix-sqlite
+
+    - name: sendmail
+      packages:
+        - name: sendmail-base
+        - name: sendmail-bin
+        - name: sendmail-cf
+  OpenBSD: []
+
+__opensmtpd_conf_dir_by_distribution:
+  Debian: /etc
+  OpenBSD: /etc/mail
+
+__opensmtpd_user_by_distribution:
+  Debian: opensmtpd
+  OpenBSD: _smtpd
+
+__opensmtpd_group_by_distribution:
+  Debian: opensmtpd
+  OpenBSD: _smtpd
+
+__opensmtpd_service_name_by_distribution:
+  Debian: opensmtpd
+  OpenBSD: smtpd
+
+__opensmtpd_bin_name_by_distribution:
+  Debian: smtpd
+  OpenBSD: smtpd
