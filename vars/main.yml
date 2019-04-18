@@ -1,5 +1,8 @@
 ---
 
+##############################################################################
+# Variables
+##############################################################################
 opensmtpd_pkgs: "{{ __opensmtpd_pkgs_by_distribution[ ansible_facts['distribution'] ] }}"
 opensmtpd_mailers_to_remove: "{{ __opensmtpd_mailers_to_remove_by_distribution[ ansible_facts['distribution'] ] }}"
 opensmtpd_conf_dir: "{{ __opensmtpd_conf_dir_by_distribution[ ansible_facts['distribution'] ] }}"
@@ -8,6 +11,9 @@ opensmtpd_group: "{{ __opensmtpd_group_by_distribution[ ansible_facts['distribut
 opensmtpd_service_name: "{{ __opensmtpd_service_name_by_distribution[ ansible_facts['distribution'] ] }}"
 opensmtpd_bin_name: "{{ __opensmtpd_bin_name_by_distribution[ ansible_facts['distribution'] ] }}"
 
+##############################################################################
+# Distributions' dictionaries
+##############################################################################
 __opensmtpd_pkgs_by_distribution:
   Debian:
     - opensmtpd
