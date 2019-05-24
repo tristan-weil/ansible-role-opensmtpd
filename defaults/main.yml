@@ -1,6 +1,6 @@
 ---
 
-opensmtpd_mailname: "{{ inventory_hostname }}"
+opensmtpd_mailname: localhost
 
 opensmtpd_macros: []
 
@@ -17,7 +17,7 @@ opensmtpd_tables:
 #        state: present
 
 opensmtpd_rules:
-  - accept from for local alias <aliases> deliver to mbox
+  - accept from local for local alias <aliases> deliver to mbox
   - accept from local for any relay
 
 opensmtpd_firewall_config_ipv4_rules: []
