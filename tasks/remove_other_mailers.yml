@@ -5,25 +5,23 @@
 
 - name: disable mailer services
   service:
-    name: "{{ item.item.name }}"
+    name: "{{ item.name }}"
     state: stopped
     enabled: False
   when: >
-    item.rc == 0
-    and ansible_facts['services'][item + '.service'] is defined
+    ansible_facts['services'][item.name + '.service'] is defined
   loop: "{{ opensmtpd_mailers_to_remove }}"
 
- - name: mask mailer services
+- name: mask mailer services
   systemd:
-    name: "{{ item.item.name }}"
+    name: "{{ item.name }}"
     masked: True
   when: >
-    item.rc == 0
-    and ansible_facts['service_mgr'] == 'systemd'
-    and ansible_facts['services'][item + '.service'] is defined
+    ansible_facts['service_mgr'] == 'systemd'
+    and ansible_facts['services'][item.name + '.service'] is defined
   loop: "{{ opensmtpd_mailers_to_remove }}"
 
-  - include_role:
+- include_role:
     name: t18s.fr_pkg
   vars:
     pkg_list: "{{ opensmtpd_mailers_to_remove | json_query(\"[*].packages | [].{ name: name, state: 'absent' }\") }}"
