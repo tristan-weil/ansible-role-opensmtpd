@@ -6,8 +6,8 @@
 
 - import_tasks: service.yml
 
-- meta: flush_handlers
-
 - import_tasks: fw.yml
+
+- meta: flush_handlers
 
 - import_tasks: remove_other_mailers.yml
