@@ -1,93 +1,99 @@
 # Ansible Role: opensmtpd
 
-An Ansible Role that installs and configures `OpenSMTPD` on Debian and OpenBSD.
+An Ansible Role that installs and configures `OpenSMTPD`.
 
 Other mailers are removed.
 
+[![Actions Status](https://github.com/tristan-weil/ansible-role-opensmtpd/workflows/molecule/badge.svg?branch=master)](https://github.com/tristan-weil/ansible-role-opensmtpd/actions)
+
 ## Role Variables
 
-Available variables are listed below, along with default values (see `defaults/main.yml`):
+Available variables are listed below, (see also `defaults/main.yml`).
 
-    opensmtpd_macros: []                                    # the list of macros
-      - name: [mandatory]                                   # the name of the macro
-        value: [mandatory]                                  # the value of the macro
-   
-The list of macros that will be in the `MACROS` part of the configuration file. 
-This is where the macros are defined.
-Each item must include the name of the `macro` and its `value`.
-    
-    opensmtpd_listen_interfaces: []                         # the list of listening interfaces
-      - listen_on: localhost                                # the bind or socket address
-    
-The list of listening interfaces that will be in the `LISTEN` part of the configuration file.
-This is where interfaces or sockets are defined.
-    
-    opensmtpd_tables:                                       # the list of tables
-      - name: aliases                                       # the name of the table
-        type: db                                            # the type (db / file)
-        config: "{{ opensmtpd_conf_dir }}/aliases.db"       # the file path
-        makemap_type: aliases                               # the makemap type (aliases / set)
-        lines: []                                           # the content of the file line by line
-          - line: [mandatory]                               # a line (the content is dependent of the file type)
-            state: present                                  # present|absent: if present, add the line
+Mandatory variables:
 
-The list of rules that will be in the `TABLES` part of the configuration file.
-    
-    opensmtpd_rules:                                        # the list of rules 
-      - accept for local alias <aliases> deliver to mbox    # deliver to local alias
-      - accept for any relay                                # accept to relay to all
+| Variable      | Description |
+| :------------ | :---------- |
 
-The list of rules that will be in the `RULES` part of the configuration file.
+Optional variables:
 
-    opensmtpd_mailname: "{{ etc_hosts | map(attribute='hostname') | unique | first | default(inventory_hostname) }}" # the mailname
+| Variable      | Default | Description |
+| :------------ | :------ | :---------- |
+| opensmtpd_config | {{ _opensmtpd_config_default }} | the configuration of the service |
+| opensmtpd_mailname | {{ ansible_facts['nodename'] }} | the mailname |
+| opensmtpd_aliases | []   | the configuration of the <*aliases*> |
+| opensmtpd_tables_list | []   | a dictionnary of <*table_list*> |
+| opensmtpd_tables_mappings | []   | a dictionnary of <*table_mappings*> |
 
-OpenSMTPD will present itself with this name.
-    
-    opensmtpd_firewall_ipv4_rules: []                       # ipv4 firewall rules
-    opensmtpd_firewall_ipv6_rules: []                       # ipv6 firewall rules
+### <*aliases*>
 
-If there is a need for OpenSMTPD to listen to incoming SMTP requests, the firewall rules need to be configured.
+This section allows to configure the *aliases*.
 
-For more information, see https://www.opensmtpd.org/manual.html
+Mandatory variables:
 
-## Dependencies
+| Variable      | Description |
+| :------------ | :---------- |
 
-- t18s.fr_pkg
-- t18s.fr_firewall_config
+Optional variables:
+
+| Variable      | Default | Description |
+| :------------ | :------ | :---------- |
+| path          | {{ _opensmtpd_aliases_path }} | the path of the aliases file |
+| aliases       | ..      | the list of aliases
+
+### <*table_list*>
+
+A *table_list* represents an entry in a table.
+
+Mandatory variables:
+
+| Variable      | Description |
+| :------------ | :---------- |
+| path          | the path of the file |
+| values        | a list of values |
+
+Optional variables:
+
+| Variable      | Default | Description |
+| :------------ | :------ | :---------- |
+| makemap       | False   | *True / False*: enable the update of a .db file |
+
+### <*table_mappings*>
+
+A *table_list* represents an entry in a table.
+
+Mandatory variables:
+
+| Variable      | Description |
+| :------------ | :---------- |
+| path          | the path of the file |
+| mappings      | a dictionnary of alias and its list of values |
+
+Optional variables:
+
+| Variable      | Default | Description |
+| :------------ | :------ | :---------- |
+| makemap       | False   | *True / False*: enable the update of a .db file |
 
 ## Example Playbook
 
-    - hosts: all
+    - hosts: 'all'
       roles:
-        - role: t18s.fr_opensmtpd
-          opensmtpd_tables:
-            - name: aliases
-              type: db
-              config: "{{ opensmtpd_conf_dir }}/aliases.db"
-              makemap_type: aliases
-              lines:
-                - line: "root: titou@lab.t18s.fr"
-                  regexp: "^root:"
-                  state: present
+        - role: 'ansible-role-opensmtpd'
+          opensmtpd_aliases: "{{ opensmtpd_aliases_default | combine({'aliases': {'root': ['testinfra']}}, recursive=True) }}"
         
 ## Todo
 
-Make it available for OpenBSD.
+None.
+
+## Dependencies
+
+See [requirements_galaxy.yml](https://github.com/tristan-weil/ansible-role-opensmtpd/blob/master/requirements_galaxy.yml)
+
+## Supported platforms
+
+See [meta/main.yml](https://github.com/tristan-weil/ansible-role-opensmtpd/blob/master/meta/main.yml)
 
 ## License
 
-```
-Copyright (c) 2018, 2019 Tristan Weil <titou@lab.t18s.fr>
-
-Permission to use, copy, modify, and distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-```
+See [LICENSE.md](https://github.com/tristan-weil/ansible-role-opensmtpd/blob/master/LICENSE.md)

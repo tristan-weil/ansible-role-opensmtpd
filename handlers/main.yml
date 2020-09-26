@@ -1,7 +1,6 @@
 ---
 
-- name: opensmtpd restart
-  listen: network restart
+- name: 'opensmtpd_restart_handler'
   service:
-    name: "{{ opensmtpd_service_name }}"
-    state: restarted
+    name: "{{ _opensmtpd_service_name }}"
+    state: 'restarted'

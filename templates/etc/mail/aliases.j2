@@ -1,0 +1,3 @@
+{% for (alias, values) in opensmtpd_aliases.aliases | dictsort %}
+{{ alias }}: {{ values | join(',') }}
+{% endfor %}

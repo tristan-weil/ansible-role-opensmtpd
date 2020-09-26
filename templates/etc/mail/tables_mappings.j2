@@ -1,0 +1,3 @@
+{% for (alias, values) in item.value.mappings | dictsort %}
+{{ alias }}: {{ values | join(',' }}
+{% endfor %}

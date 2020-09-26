@@ -1,0 +1,31 @@
+---
+
+- hosts: all
+  name: 'Converge'
+  become: True
+  vars:
+    __opensmtpd_aliases_default:
+      aliases:
+        _x11:
+          - 'testinfra'
+        root:
+          - 'testinfra'
+
+  tasks:
+    - name: 'create a user'
+      user:
+        name: 'testinfra'
+
+    - name: 'check backports exists'
+      lineinfile:
+        path: '/etc/apt/sources.list'
+        line: 'deb https://deb.debian.org/debian/ buster-backports main contrib non-free'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      when: ansible_facts['os_family'] == "Debian"
+
+    - import_role:
+        name: 'ansible-role-opensmtpd'
+      vars:
+        opensmtpd_aliases: "{{ _opensmtpd_aliases_default | combine(__opensmtpd_aliases_default, recursive=True) }}"

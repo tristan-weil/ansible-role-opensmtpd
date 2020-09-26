@@ -3,58 +3,388 @@
 ##############################################################################
 # Variables
 ##############################################################################
-opensmtpd_pkgs: "{{ __opensmtpd_pkgs_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_mailers_to_remove: "{{ __opensmtpd_mailers_to_remove_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_conf_dir: "{{ __opensmtpd_conf_dir_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_user: "{{ __opensmtpd_user_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_group: "{{ __opensmtpd_group_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_service_name: "{{ __opensmtpd_service_name_by_distribution[ ansible_facts['distribution'] ] }}"
-opensmtpd_bin_name: "{{ __opensmtpd_bin_name_by_distribution[ ansible_facts['distribution'] ] }}"
+_opensmtpd_pkgs: "{{ _opensmtpd_pkgs_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_mailers_to_remove: "{{ _opensmtpd_mailers_to_remove_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_conf_dir: "{{ _opensmtpd_conf_dir_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_user: "{{ _opensmtpd_user_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_group: "{{ _opensmtpd_group_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_service_name: "{{ _opensmtpd_service_name_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_bin_name: "{{ _opensmtpd_bin_name_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_root_group: "{{ _opensmtpd_root_group_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_aliases_path: "{{ _opensmtpd_aliases_path_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_mailname_path: "{{ _opensmtpd_mailname_path_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_conf_path: "{{ _opensmtpd_conf_path_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_aliases_default: "{{ _opensmtpd_aliases_default_by_os_family[ ansible_facts['os_family'] ] }}"
+_opensmtpd_config_default: "{{ _opensmtpd_config_default_by_os_family[ ansible_facts['os_family'] ] }}"
 
 ##############################################################################
 # Distributions' dictionaries
 ##############################################################################
-__opensmtpd_pkgs_by_distribution:
+_opensmtpd_pkgs_by_os_family:
   Debian:
-    - opensmtpd
+    - name: 'mailutils'
+    - name: 'opensmtpd'
+      default_release: "{{ ansible_facts['distribution_release'] }}-backports"
   OpenBSD: []
 
-__opensmtpd_mailers_to_remove_by_distribution:
+_opensmtpd_mailers_to_remove_by_os_family:
   Debian:
-    - name: exim4
+    - name: 'exim4'
       packages:
-        - name: exim4-base
-        - name: exim4-config
-        - name: exim4-daemon-light
+        - name: 'exim4-base'
+        - name: 'exim4-config'
+        - name: 'exim4-daemon-light'
 
-    - name: postfix
+    - name: 'postfix'
       packages:
-        - name: postfix
-        - name: postfix-sqlite
+        - name: 'postfix'
+        - name: 'postfix-sqlite'
 
-    - name: sendmail
+    - name: 'sendmail'
       packages:
-        - name: sendmail-base
-        - name: sendmail-bin
-        - name: sendmail-cf
+        - name: 'sendmail-base'
+        - name: 'sendmail-bin'
+        - name: 'sendmail-cf'
   OpenBSD: []
 
-__opensmtpd_conf_dir_by_distribution:
-  Debian: /etc
-  OpenBSD: /etc/mail
+_opensmtpd_conf_dir_by_os_family:
+  Debian: '/etc'
+  OpenBSD: '/etc/mail'
 
-__opensmtpd_user_by_distribution:
-  Debian: opensmtpd
-  OpenBSD: _smtpd
+_opensmtpd_conf_path_by_os_family:
+  Debian: '/etc/smtpd.conf'
+  OpenBSD: '/etc/mail/smtpd.conf'
 
-__opensmtpd_group_by_distribution:
-  Debian: opensmtpd
-  OpenBSD: _smtpd
+_opensmtpd_mailname_path_by_os_family:
+  Debian: '/etc/mailname'
+  OpenBSD: '/etc/mail/mailname'
 
-__opensmtpd_service_name_by_distribution:
-  Debian: opensmtpd
-  OpenBSD: smtpd
+_opensmtpd_aliases_path_by_os_family:
+  Debian: '/etc/aliases'
+  OpenBSD: '/etc/mail/aliases'
 
-__opensmtpd_bin_name_by_distribution:
-  Debian: smtpd
-  OpenBSD: smtpd
+_opensmtpd_user_by_os_family:
+  Debian: 'opensmtpd'
+  OpenBSD: '_smtpd'
+
+_opensmtpd_group_by_os_family:
+  Debian: 'opensmtpd'
+  OpenBSD: '_smtpd'
+
+_opensmtpd_service_name_by_os_family:
+  Debian: 'opensmtpd'
+  OpenBSD: 'smtpd'
+
+_opensmtpd_bin_name_by_os_family:
+  Debian: 'smtpd'
+  OpenBSD: 'smtpd'
+
+_opensmtpd_root_group_by_os_family:
+  Debian: 'root'
+  OpenBSD: 'wheel'
+
+_opensmtpd_aliases_default_by_os_family:
+  Debian:
+    path: "{{ _opensmtpd_aliases_path }}"
+    aliases:
+      # root:
+      #   - ???
+
+      # RFC 2142 NETWORK OPERATIONS MAILBOX NAMES
+      abuse:
+        - 'root'
+
+      noc:
+        - 'root'
+
+      security:
+        - 'root'
+
+      # RFC 2142 SUPPORT MAILBOX NAMES FOR SPECIFIC INTERNET SERVICES
+      postmaster:
+        - 'root'
+
+      hostmaster:
+        - 'root'
+
+      usenet:
+        - 'root'
+
+      news:
+        - 'root'
+
+      webmaster:
+        - 'root'
+
+      www:
+        - 'webmaster'
+
+      uucp:
+        - 'root'
+
+      ftp:
+        - 'webmaster'
+
+  OpenBSD:
+    path: "{{ _opensmtpd_aliases_path }}"
+    aliases:
+      # Basic system aliases -- these MUST be present
+      MAILER-DAEMON:
+        - 'postmaster'
+
+      postmaster:
+        - 'root'
+
+      # General redirections for important pseudo accounts
+      daemon:
+        - 'root'
+
+      ftp-bugs:
+        - 'root'
+
+      operator:
+        - 'root'
+
+      www:
+        - 'root'
+
+      # Redirections for pseudo accounts that should not receive mail
+      _bgpd:
+        - '/dev/null'
+
+      _dhcp:
+        - '/dev/null'
+
+      _dpb:
+        - '/dev/null'
+
+      _dvmrpd:
+        - '/dev/null'
+
+      _eigrpd:
+        - '/dev/null'
+
+      _file:
+        - '/dev/null'
+
+      _fingerd:
+        - '/dev/null'
+
+      _ftp:
+        - '/dev/null'
+
+      _hostapd:
+        - '/dev/null'
+
+      _identd:
+        - '/dev/null'
+
+      _iked:
+        - '/dev/null'
+
+      _isakmpd:
+        - '/dev/null'
+
+      _iscsid:
+        - '/dev/null'
+
+      _ldapd:
+        - '/dev/null'
+
+      _ldpd:
+        - '/dev/null'
+
+      _mopd:
+        - '/dev/null'
+
+      _nsd:
+        - '/dev/null'
+
+      _ntp:
+        - '/dev/null'
+
+      _ospfd:
+        - '/dev/null'
+
+      _ospf6d:
+        - '/dev/null'
+
+      _pbuild:
+        - '/dev/null'
+
+      _pfetch:
+        - '/dev/null'
+
+      _pflogd:
+        - '/dev/null'
+
+      _ping:
+        - '/dev/null'
+
+      _pkgfetch:
+        - '/dev/null'
+
+      _pkguntar:
+        - '/dev/null'
+
+      _portmap:
+        - '/dev/null'
+
+      _ppp:
+        - '/dev/null'
+
+      _rad:
+        - '/dev/null'
+
+      _radiusd:
+        - '/dev/null'
+
+      _rbootd:
+        - '/dev/null'
+
+      _relayd:
+        - '/dev/null'
+
+      _ripd:
+        - '/dev/null'
+
+      _rstatd:
+        - '/dev/null'
+
+      _rusersd:
+        - '/dev/null'
+
+      _rwalld:
+        - '/dev/null'
+
+      _smtpd:
+        - '/dev/null'
+
+      _smtpq:
+        - '/dev/null'
+
+      _sndio:
+        - '/dev/null'
+
+      _snmpd:
+        - '/dev/null'
+
+      _spamd:
+        - '/dev/null'
+
+      _switchd:
+        - '/dev/null'
+
+      _syslogd:
+        - '/dev/null'
+
+      _tcpdump:
+        - '/dev/null'
+
+      _traceroute:
+        - '/dev/null'
+
+      _tftpd:
+        - '/dev/null'
+
+      _unbound:
+        - '/dev/null'
+
+      _unwind:
+        - '/dev/null'
+
+      _vmd:
+        - '/dev/null'
+
+      _x11:
+        - '/dev/null'
+
+      _ypldap:
+        - '/dev/null'
+
+      bin:
+        - '/dev/null'
+
+      build:
+        - '/dev/null'
+
+      nobody:
+        - '/dev/null'
+
+      _tftp_proxy:
+        - '/dev/null'
+
+      _ftp_proxy:
+        - '/dev/null'
+
+      _sndiop:
+        - '/dev/null'
+
+      _syspatch:
+        - '/dev/null'
+
+      _slaacd:
+        - '/dev/null'
+
+      sshd:
+        - '/dev/null'
+
+      # Well-known aliases -- these should be filled in!
+      # root:
+      #   - ???
+
+      manager:
+        - 'root'
+
+      dumper:
+        - 'root'
+
+      # RFC 2142: NETWORK OPERATIONS MAILBOX NAMES
+      abuse:
+        - 'root'
+
+      noc:
+        - 'root'
+
+      security:
+        - 'root'
+
+      # RFC 2142: SUPPORT MAILBOX NAMES FOR SPECIFIC INTERNET SERVICES
+      hostmaster:
+        - 'root'
+
+      usenet:
+        - 'root'
+
+      news:
+        - 'root'
+
+      webmaster:
+        - www
+
+      ftp:
+        - 'root'
+
+_opensmtpd_config_default_by_os_family:
+  Debian: |
+    table aliases file:/etc/aliases
+
+    listen on lo
+
+    action "local" maildir alias <aliases>
+    action "relay" relay
+
+    match for local action "local"
+    match from local for any action "relay"
+
+  OpenBSD: |
+    table aliases file:{{ _opensmtpd_aliases_path }}
+
+    listen on socket
+    listen on lo0
+
+    action "local_mail" mbox alias <aliases>
+    action "outbound" relay
+
+    match from local for local action "local_mail"
+    match from local for any action "outbound"

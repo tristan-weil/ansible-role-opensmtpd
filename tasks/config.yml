@@ -1,64 +1,52 @@
 ---
 
-- name: update file table files
-  lineinfile:
-    path: "{{ item[0].config }}"
-    line: "{{ item[1].line }}"
-    state: "{{ item[1].state | default('present') }}"
-    regexp: "{{ item[1].regexp | default(omit) }}"
-    owner: root
-    group: root
-    mode: "0644"
-  register: __opensmtpd_tables_file_result
-  when: >
-    item[0].type == 'file'
-  loop: "{{ opensmtpd_tables | subelements('lines') }}"
+- name: 'update aliases databases'  # noqa 503
+  command: newaliases
+  when: __opensmtpd_aliases_result.changed
 
-- name: update db table files
-  lineinfile:
-    path: "{{ item[0].config | regex_replace('.db$', '') }}"
-    line: "{{ item[1].line }}"
-    state: "{{ item[1].state | default('present') }}"
-    regexp: "{{ item[1].regexp | default(omit) }}"
-    owner: root
-    group: root
-    mode: "0644"
-  register: __opensmtpd_tables_db_result
-  when: >
-    item[0].type == 'db'
-  loop: "{{ opensmtpd_tables | subelements('lines') }}"
-
-- name: install the opensmtpd config file
+- name: 'update list-formatted tables'
   template:
-    src: etc/mail/smtpd.conf.j2
-    dest: "{{ opensmtpd_conf_dir }}/smtpd.conf"
-    owner: root
-    group: root
-    mode: "0644"
-    validate: "{{ opensmtpd_bin_name }} -f %s -n"
-  notify:
-    - opensmtpd restart
+    src: 'etc/mail/tables_list.j2'
+    dest: "{{ item.value.path }}"
+    owner: 'root'
+    group: "{{ _opensmtpd_root_group }}"
+    mode: '0644'
+  register: __opensmtpd_tables_list_result
+  loop: "{{ lookup('dict', opensmtpd_tables_list, wantlist=True) }}"
 
-- name: install the mailname config file
-  template:
-    src: etc/mail/mailname.j2
-    dest: "{{ opensmtpd_conf_dir }}/mailname"
-    owner: root
-    group: root
-    mode: "0644"
-  notify:
-    - opensmtpd restart
-
-- name: update file tables
-  command: "smtpctl update table {{ item.item[0].name }}"
+- name: 'update list-formatted databases'  # noqa 503
+  command: |
+    makemap -t set {{ item.item.value.makemap }}.db
   when: >
     item.changed
-    and item.item[0].type == 'file'
-  loop: "{{ __opensmtpd_tables_file_result.results }}"
+    and item.item.value.makemap | default(False) | bool
+  loop: "{{ __opensmtpd_tables_list_result.results }}"
 
-- name: update db tables
-  command: "makemap {% if item.item[0].makemap_type is defined %}-t {{ item.item[0].makemap_type }}{% endif %} {{ item.item[0].config | regex_replace('.db$', '') }}"
+- name: 'update mappings-formatted tables'
+  template:
+    src: 'etc/mail/tables_mappings.j2'
+    dest: "{{ item.value.path }}"
+    owner: 'root'
+    group: "{{ _opensmtpd_root_group }}"
+    mode: '0644'
+  register: __opensmtpd_tables_mappings_result
+  loop: "{{ lookup('dict', opensmtpd_tables_mappings, wantlist=True) }}"
+
+- name: 'update mappings-formatted databases'  # noqa 503
+  command: |
+    makemap -t aliases {{ item.item.value.makemap }}.db
   when: >
     item.changed
-    and item.item[0].type == 'db'
-  loop: "{{ __opensmtpd_tables_db_result.results }}"
+    and item.item.value.makemap | default(False) | bool
+  loop: "{{ __opensmtpd_tables_mappings_result.results }}"
+
+- name: 'install the opensmtpd config file'
+  template:
+    src: 'etc/mail/smtpd.conf.j2'
+    dest: "{{ _opensmtpd_conf_path }}"
+    owner: 'root'
+    group: "{{ _opensmtpd_root_group }}"
+    mode: '0644'
+    validate: "{{ _opensmtpd_bin_name }} -n -f %s"
+  notify:
+    - 'opensmtpd_restart_handler'

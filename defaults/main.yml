@@ -1,24 +1,9 @@
 ---
 
-opensmtpd_mailname: localhost
+opensmtpd_mailname: "{{ ansible_facts['nodename'] }}"
 
-opensmtpd_macros: []
+opensmtpd_aliases: {}
+opensmtpd_tables_list: {}
+opensmtpd_tables_mappings: {}
 
-opensmtpd_listen_interfaces:
-  - listen_on: localhost
-
-opensmtpd_tables:
-  - name: aliases
-    type: db
-    config: "{{ opensmtpd_conf_dir }}/aliases.db"
-    makemap_type: aliases
-    lines: []
-#      - line: "root: tt@fsdfsd.com"
-#        state: present
-
-opensmtpd_rules:
-  - accept from local for local alias <aliases> deliver to mbox
-  - accept from local for any relay
-
-opensmtpd_firewall_config_ipv4_rules: []
-opensmtpd_firewall_config_ipv6_rules: []
+opensmtpd_config: "{{ _opensmtpd_config_default }}"

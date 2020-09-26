@@ -1,0 +1,23 @@
+---
+
+- name: 'update aliases files'
+  template:
+    src: 'etc/mail/aliases.j2'
+    dest: "{{ opensmtpd_aliases.path }}"
+    owner: 'root'
+    group: "{{ _opensmtpd_root_group }}"
+    mode: '0644'
+  when: >
+    opensmtpd_aliases.aliases is defined
+    and opensmtpd_aliases.aliases | length > 0
+  register: __opensmtpd_aliases_result
+
+- name: 'install the mailname config file'
+  template:
+    src: 'etc/mail/mailname.j2'
+    dest: "{{ _opensmtpd_mailname_path }}"
+    owner: 'root'
+    group: "{{ _opensmtpd_root_group }}"
+    mode: '0644'
+  notify:
+    - 'opensmtpd_restart_handler'
