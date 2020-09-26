@@ -24,4 +24,4 @@
 - include_role:
     name: 'ansible-role-pkg'
   vars:
-    pkg_list: "{{ _opensmtpd_mailers_to_remove | json_query(\"[*].packages | [].{ name: 'name', state: 'absent' }\") }}"
+    pkg_list: "{{ _opensmtpd_mailers_to_remove | json_query(\"[*].packages | [].{ name: name, state: 'absent' }\") }}"
