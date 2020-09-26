@@ -22,9 +22,9 @@ _opensmtpd_config_default: "{{ _opensmtpd_config_default_by_os_family[ ansible_f
 ##############################################################################
 _opensmtpd_pkgs_by_os_family:
   Debian:
-    - name: 'mailutils'
     - name: 'opensmtpd'
       default_release: "{{ ansible_facts['distribution_release'] }}-backports"
+    - name: 'mailutils'
   OpenBSD: []
 
 _opensmtpd_mailers_to_remove_by_os_family:
