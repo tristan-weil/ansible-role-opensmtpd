@@ -1,5 +1,7 @@
 ---
 
+- import_tasks: 'remove_other_mailers.yml'
+
 - import_tasks: 'pre_install.yml'
 
 - import_tasks: 'install.yml'
@@ -9,5 +11,3 @@
 - import_tasks: 'service.yml'
 
 - meta: 'flush_handlers'
-
-- import_tasks: 'remove_other_mailers.yml'
