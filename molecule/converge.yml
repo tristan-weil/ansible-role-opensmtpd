@@ -16,13 +16,19 @@
       user:
         name: 'testinfra'
 
-    - name: 'check backports exists'
-      lineinfile:
-        path: '/etc/apt/sources.list'
-        line: 'deb https://deb.debian.org/debian/ buster-backports main contrib non-free'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
+    - block:
+        - name: 'check backports exists'
+          lineinfile:
+            path: '/etc/apt/sources.list'
+            line: 'deb https://deb.debian.org/debian/ buster-backports main contrib non-free'
+            owner: 'root'
+            group: 'root'
+            mode: '0644'
+
+        - name: 'update apt cache'
+          apt:
+            update_cache: True
+          changed_when: False
       when: ansible_facts['os_family'] == "Debian"
 
     - import_role:
